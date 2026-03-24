@@ -30,7 +30,6 @@
       font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial;
       background: radial-gradient(900px 600px at 35% 0%, #1f2a5a 0%, var(--bg) 55%, #020617 100%);
       color: var(--text);
-      touch-action: none;
     }
 
     .hud {
@@ -43,6 +42,7 @@
       gap: 12px;
       z-index: 20;
       pointer-events: none;
+      transition: all .2s ease;
     }
 
     .card {
@@ -580,12 +580,92 @@
       color: var(--muted);
       font-size: 13px;
     }
+
+    .stats-card,
+    .controls-card {
+      transition: all .2s ease;
+    }
+
+    @media (max-width: 768px) {
+      .hud {
+        top: auto;
+        bottom: 10px;
+        left: 8px;
+        right: 8px;
+        flex-direction: column;
+        align-items: stretch;
+        gap: 6px;
+      }
+
+      .card {
+        padding: 8px 10px;
+        border-radius: 12px;
+        background: rgba(8, 15, 30, 0.45);
+        border: 1px solid rgba(255, 255, 255, 0.06);
+        backdrop-filter: blur(8px);
+        box-shadow: 0 8px 24px rgba(0, 0, 0, .28);
+      }
+
+      .stats-card {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 8px 10px;
+      }
+
+      .stat {
+        min-width: 0;
+        gap: 1px;
+      }
+
+      .stat span {
+        font-size: 10px;
+        line-height: 1.1;
+        opacity: 0.8;
+      }
+
+      .stat strong {
+        font-size: 13px;
+        line-height: 1.2;
+      }
+
+      .controls-card {
+        display: flex;
+        justify-content: space-between;
+        gap: 6px;
+        flex-wrap: nowrap;
+      }
+
+      .controls-card button {
+        flex: 1;
+        min-width: 0;
+        padding: 8px 6px;
+        font-size: 12px;
+        border-radius: 10px;
+        font-weight: 700;
+      }
+
+      .hint {
+        bottom: 118px;
+        font-size: 11px;
+        padding: 8px 10px;
+        max-width: calc(100% - 20px);
+        white-space: normal;
+      }
+
+      .hud.mobile-collapsed .stats-card {
+        display: none;
+      }
+
+      .hud.mobile-collapsed .controls-card {
+        opacity: 0.92;
+      }
+    }
   </style>
 </head>
 
 <body>
   <div class="hud">
-    <div class="card">
+    <div class="card stats-card">
       <div class="stat"><span>Temps survécu</span><strong id="survive">0.0s</strong></div>
       <div class="stat"><span>Score</span><strong id="score">0</strong></div>
       <div class="stat"><span>Bonus</span><strong id="bonusCount">0</strong></div>
@@ -593,7 +673,8 @@
       <div class="stat"><span>Vitesse</span><strong id="speed">0.0</strong></div>
       <div class="stat"><span>Capacité</span><strong id="ability">—</strong></div>
     </div>
-    <div class="card">
+    <div class="card controls-card">
+      <button id="toggleHudBtn">Stats</button>
       <button id="restartBtn">Recommencer</button>
       <button id="pauseBtn">Pause</button>
       <button id="soundBtn">Son : ON</button>
@@ -752,6 +833,8 @@
     const mouseEl = document.getElementById("mouse");
     const mainEl = document.getElementById("chaserMain");
     const faceMain = document.getElementById("faceMain");
+    const hud = document.getElementById("hud");
+    const toggleHudBtn = document.getElementById("toggleHudBtn");
 
     const spikesTopEl = document.getElementById("spikesTop");
     const spikesBottomEl = document.getElementById("spikesBottom");
@@ -1830,30 +1913,30 @@
       setMousePosition(e.clientX, e.clientY);
     });
     arena.addEventListener("touchstart", (e) => {
-  if (!gameStarted || paused || gameOver) return;
+      if (!gameStarted || paused || gameOver) return;
 
-  if (e.touches.length > 0) {
-    const touch = e.touches[0];
-    setMousePosition(touch.clientX, touch.clientY);
-  }
-}, { passive: true });
+      if (e.touches.length > 0) {
+        const touch = e.touches[0];
+        setMousePosition(touch.clientX, touch.clientY);
+      }
+    }, { passive: true });
 
-arena.addEventListener("touchmove", (e) => {
-  if (!gameStarted || paused || gameOver) return;
+    arena.addEventListener("touchmove", (e) => {
+      if (!gameStarted || paused || gameOver) return;
 
-  e.preventDefault();
+      e.preventDefault();
 
-  if (e.touches.length > 0) {
-    const touch = e.touches[0];
-    setMousePosition(touch.clientX, touch.clientY);
-  }
-}, { passive: false });
+      if (e.touches.length > 0) {
+        const touch = e.touches[0];
+        setMousePosition(touch.clientX, touch.clientY);
+      }
+    }, { passive: false });
 
-arena.addEventListener("touchcancel", () => {
-}, { passive: true });
+    arena.addEventListener("touchcancel", () => {
+    }, { passive: true });
 
-arena.addEventListener("touchend", () => {
-}, { passive: true });
+    arena.addEventListener("touchend", () => {
+    }, { passive: true });
     window.addEventListener("keydown", (e) => {
       if (!gameStarted && !startOverlay.hidden) {
         if (e.key === "Enter" || e.key === " ") {
@@ -1910,8 +1993,28 @@ arena.addEventListener("touchend", () => {
       }
       updateSpikesVisual();
       setPositions();
+      updateHudMode();
     });
 
+    function isMobileLayout() {
+      return window.innerWidth <= 768;
+    }
+
+    function updateHudMode() {
+      if (!isMobileLayout()) {
+        hud.classList.remove("mobile-collapsed");
+        return;
+      }
+
+      if (!hud.classList.contains("mobile-collapsed")) {
+        hud.classList.add("mobile-collapsed");
+      }
+    }
+
+    toggleHudBtn.addEventListener("click", () => {
+      if (!isMobileLayout()) return;
+      hud.classList.toggle("mobile-collapsed");
+    });
     function queueNextTick() {
       requestAnimationFrame(tick);
     }
@@ -2003,6 +2106,7 @@ arena.addEventListener("touchend", () => {
     resetGame();
     openStartOverlay();
     setSoundEnabled(true);
+    updateHudMode();
     requestAnimationFrame(tick);
   </script>
 </body>
