@@ -1829,21 +1829,31 @@
     window.addEventListener("mousemove", (e) => {
       setMousePosition(e.clientX, e.clientY);
     });
-    window.addEventListener("touchstart", (e) => {
-      if (e.touches.length > 0) {
-        const touch = e.touches[0];
-        setMousePosition(touch.clientX, touch.clientY);
-      }
-    }, { passive: false });
+    arena.addEventListener("touchstart", (e) => {
+  if (!gameStarted || paused || gameOver) return;
 
-    window.addEventListener("touchmove", (e) => {
-      e.preventDefault();
+  if (e.touches.length > 0) {
+    const touch = e.touches[0];
+    setMousePosition(touch.clientX, touch.clientY);
+  }
+}, { passive: true });
 
-      if (e.touches.length > 0) {
-        const touch = e.touches[0];
-        setMousePosition(touch.clientX, touch.clientY);
-      }
-    }, { passive: false });
+arena.addEventListener("touchmove", (e) => {
+  if (!gameStarted || paused || gameOver) return;
+
+  e.preventDefault();
+
+  if (e.touches.length > 0) {
+    const touch = e.touches[0];
+    setMousePosition(touch.clientX, touch.clientY);
+  }
+}, { passive: false });
+
+arena.addEventListener("touchcancel", () => {
+}, { passive: true });
+
+arena.addEventListener("touchend", () => {
+}, { passive: true });
     window.addEventListener("keydown", (e) => {
       if (!gameStarted && !startOverlay.hidden) {
         if (e.key === "Enter" || e.key === " ") {
@@ -1866,14 +1876,6 @@
       if (e.key.toLowerCase() === "r") resetGame();
     });
 
-    window.addEventListener("touchcancel", (e) => {
-      e.preventDefault();
-    }, { passive: false });
-
-    window.addEventListener("touchend", (e) => {
-      e.preventDefault();
-    }, { passive: false });
-    
     restartBtn.addEventListener("click", resetGame);
     playAgainBtn.addEventListener("click", resetGame);
     startGameBtn.addEventListener("click", startGame);
