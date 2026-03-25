@@ -856,7 +856,6 @@
     const mainEl = document.getElementById("chaserMain");
     const faceMain = document.getElementById("faceMain");
     const hud = document.getElementById("hud");
-    const toggleHudBtn = document.getElementById("toggleHudBtn");
 
     const spikesTopEl = document.getElementById("spikesTop");
     const spikesBottomEl = document.getElementById("spikesBottom");
@@ -2033,10 +2032,10 @@
       }
     }
 
-    toggleHudBtn.addEventListener("click", () => {
-      if (!isMobileLayout()) return;
-      hud.classList.toggle("mobile-collapsed");
-    });
+    // toggleHudBtn.addEventListener("click", () => {
+    //   if (!isMobileLayout()) return;
+    //   hud.classList.toggle("mobile-collapsed");
+    // });
     function queueNextTick() {
       requestAnimationFrame(tick);
     }
