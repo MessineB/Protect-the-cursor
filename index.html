@@ -1135,14 +1135,14 @@
       };
     }
     function spawnDashSpikeRain() {
-  for (let i = 0; i < 4; i++) {
-    setTimeout(() => {
-      if (!gameOver && gameStarted) {
-        spawnSpear("top");
+      for (let i = 0; i < 4; i++) {
+        setTimeout(() => {
+          if (!gameOver && gameStarted) {
+            spawnSpear("top");
+          }
+        }, i * 70);
       }
-    }, i * 70);
-  }
-}
+    }
 
     function spawnPop(x, y) {
       const p = document.createElement("div");
@@ -1842,6 +1842,11 @@
           if (c.dash.phase === "dash" && now >= c.dash.dashUntil) {
             c.dash.phase = "none";
             c.el.classList.remove("dash-warn", "dashing");
+
+            if (survived - c.dash.lastSpikeRainAt >= CONFIG.dashSpikeRainCooldown) {
+              c.dash.lastSpikeRainAt = survived;
+              spawnDashSpikeRain();
+            }
           }
         }
       }
@@ -1914,11 +1919,6 @@
         if (c.y >= bounds.bottom - 24) {
           c.y = bounds.bottom - 24;
           touchedWall = true;
-        }
-
-        if (touchedWall && survived - c.dash.lastSpikeRainAt >= CONFIG.dashSpikeRainCooldown) {
-          c.dash.lastSpikeRainAt = survived;
-          spawnDashSpikeRain();
         }
 
         return;
