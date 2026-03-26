@@ -261,8 +261,8 @@
 
     .hand {
       position: absolute;
-      width: 22px;
-      height: 22px;
+      width: 30px;
+      height: 30px;
       border-radius: 10px;
       transform: translate(-50%, -50%);
       background: linear-gradient(135deg, rgba(192, 132, 252, .98), rgba(168, 85, 247, .92));
@@ -279,7 +279,7 @@
       inset: 0;
       display: grid;
       place-items: center;
-      font-size: 12px;
+      font-size: 16px;
       filter: drop-shadow(0 2px 6px rgba(0, 0, 0, .35));
     }
 
@@ -403,6 +403,24 @@
       width: 28px;
       height: 22px;
       clip-path: polygon(0 50%, 100% 0, 100% 100%);
+    }
+
+    .spear.bottom::before {
+      left: 50%;
+      bottom: 0;
+      transform: translateX(-50%);
+      width: 8px;
+      height: 62px;
+      border-radius: 999px;
+    }
+
+    .spear.bottom::after {
+      left: 50%;
+      top: 0;
+      transform: translateX(-50%);
+      width: 22px;
+      height: 28px;
+      clip-path: polygon(50% 0, 0 100%, 100% 100%);
     }
 
     .spikes-edge {
@@ -793,19 +811,23 @@
       abilityEveryMin: 10,
       abilityEveryMax: 15,
 
-      splitDuration: 5.0,
-      splitSpawnPadding: 22,
+      splitDuration: 7.0,
+      splitSpawnPadding: 40,
+      splitStartSpeedFactor: 0.22,
 
       missilesDuration: 4.5,
       missileEvery: 0.34,
       missileSpeedBase: 260,
-      missileSpeedPerSpeed: 20,
+      missileSpeedPerSpeed: 10,
       missileHitRadius: 16,
       missileLife: 2.7,
 
       dashWarnDuration: 0.55,
       dashDuration: 0.42,
       dashSpeedMult: 4.0,
+      dashSpikeRainCount: 4,
+      dashSpikeRainSpread: 140,
+      dashSpikeRainCooldown: 0.35,
 
       bonusSpawnMin: 3.5,
       bonusSpawnMax: 6.5,
@@ -821,9 +843,8 @@
       handsCount: 5,
       handsOrbitRadius: 72,
       handsAngularSpeed: 2.7,
-      handsHitRadius: 18,
+      handsHitRadius: 22,
 
-      // pics permanents (version fluide)
       spikesStartAt: 20,
       spikesGrowPerSecond: 6,
       spikesMaxDepth: 140,
@@ -845,6 +866,11 @@
       sideSpearHeight: 14,
       sideSpearHitRadiusX: 34,
       sideSpearHitRadiusY: 10,
+
+      // Lances qui montent du bas
+      bottomSpearsStartAt: 100,
+      bottomSpearSpawnEvery: 1.5,
+      bottomSpearRiseSpeed: 360,
     };
 
     const clamp = (v, min, max) => Math.max(min, Math.min(max, v));
@@ -1076,6 +1102,7 @@
 
     let nextSpearAt = CONFIG.spearsStartAt;
     let nextSideSpearAt = CONFIG.sideSpearsStartAt;
+    let nextBottomSpearAt = CONFIG.bottomSpearsStartAt;
     let nextBonusAt = 0;
     let bonusCount = 0;
 
@@ -1098,9 +1125,24 @@
         vx: 0, vy: 0,
         el,
         isClone,
-        dash: { phase: "none", warnUntil: 0, dashUntil: 0, dir: { x: 0, y: 0 } }
+        dash: {
+          phase: "none",
+          warnUntil: 0,
+          dashUntil: 0,
+          dir: { x: 0, y: 0 },
+          lastSpikeRainAt: -999
+        }
       };
     }
+    function spawnDashSpikeRain() {
+  for (let i = 0; i < 4; i++) {
+    setTimeout(() => {
+      if (!gameOver && gameStarted) {
+        spawnSpear("top");
+      }
+    }, i * 70);
+  }
+}
 
     function spawnPop(x, y) {
       const p = document.createElement("div");
@@ -1365,6 +1407,7 @@
 
       nextSpearAt = CONFIG.spearsStartAt;
       nextSideSpearAt = CONFIG.sideSpearsStartAt;
+      nextBottomSpearAt = CONFIG.bottomSpearsStartAt;
       scheduleNextAbility();
       scheduleNextBonus();
       placeEntities();
@@ -1533,7 +1576,29 @@
 
         return;
       }
+      if (direction === "bottom") {
+        const minX = bounds.left + 20;
+        const maxX = bounds.right - 20;
+        if (maxX <= minX) return;
 
+        const x = minX + Math.random() * (maxX - minX);
+        const y = bounds.bottom + 60;
+
+        const el = document.createElement("div");
+        el.className = "spear bottom";
+        arena.appendChild(el);
+
+        spears.push({
+          type: "bottom",
+          x,
+          y,
+          vx: 0,
+          vy: -CONFIG.bottomSpearRiseSpeed,
+          el
+        });
+
+        return;
+      }
       if (direction === "left") {
         const minY = bounds.top + 20;
         const maxY = bounds.bottom - 20;
@@ -1594,6 +1659,10 @@
         nextSideSpearAt += CONFIG.sideSpearSpawnEvery;
       }
 
+      while (survived >= nextBottomSpearAt) {
+        spawnSpear("bottom");
+        nextBottomSpearAt += CONFIG.bottomSpearSpawnEvery;
+      }
       for (let i = spears.length - 1; i >= 0; i--) {
         const s = spears[i];
 
@@ -1602,7 +1671,7 @@
 
         let hit = false;
 
-        if (s.type === "top") {
+        if (s.type === "top" || s.type === "bottom") {
           const hitX = Math.abs(mouse.x - s.x) < CONFIG.spearHitRadiusX;
           const hitY = Math.abs(mouse.y - s.y) < CONFIG.spearHitRadiusY;
           hit = hitX && hitY;
@@ -1618,12 +1687,14 @@
           return;
         }
 
+        const outBottom = s.y < bounds.top - 120;
         const outTop = s.y > bounds.bottom + 120;
         const outLeft = s.x > bounds.right + 120;
         const outRight = s.x < bounds.left - 120;
 
         if (
           (s.type === "top" && outTop) ||
+          (s.type === "bottom" && outBottom) ||
           (s.type === "left" && outLeft) ||
           (s.type === "right" && outRight)
         ) {
@@ -1650,11 +1721,12 @@
         const dBottom = Math.abs(r.bottom - mouse.y);
         playSplitSound();
 
+        // on choisit le bord le plus éloigné du joueur sinon c'est trop dur
         let side = "left";
-        let min = dLeft;
-        if (dRight < min) { min = dRight; side = "right"; }
-        if (dTop < min) { min = dTop; side = "top"; }
-        if (dBottom < min) { min = dBottom; side = "bottom"; }
+        let max = dLeft;
+        if (dRight > max) { max = dRight; side = "right"; }
+        if (dTop > max) { max = dTop; side = "top"; }
+        if (dBottom > max) { max = dBottom; side = "bottom"; }
 
         const cloneEl = document.createElement("div");
         cloneEl.className = "chaser clone";
@@ -1679,8 +1751,8 @@
 
         const dx = mouse.x - cloneRef.x, dy = mouse.y - cloneRef.y;
         const d = Math.hypot(dx, dy) || 1;
-        cloneRef.vx = (dx / d) * (chSpeed * CONFIG.speedScale * 0.45);
-        cloneRef.vy = (dy / d) * (chSpeed * CONFIG.speedScale * 0.45);
+        cloneRef.vx = (dx / d) * (chSpeed * CONFIG.speedScale * CONFIG.splitStartSpeedFactor);
+        cloneRef.vy = (dy / d) * (chSpeed * CONFIG.speedScale * CONFIG.splitStartSpeedFactor);
 
         chasers.push(cloneRef);
         activeAbility = { type, until: now + CONFIG.splitDuration, missileT: 0 };
@@ -1824,8 +1896,31 @@
         c.vy = c.dash.dir.y * dashSpeed;
         c.x += c.vx * dt;
         c.y += c.vy * dt;
-        c.x = clamp(c.x, bounds.left + 24, bounds.right - 24);
-        c.y = clamp(c.y, bounds.top + 24, bounds.bottom - 24);
+
+        let touchedWall = false;
+
+        if (c.x <= bounds.left + 24) {
+          c.x = bounds.left + 24;
+          touchedWall = true;
+        }
+        if (c.x >= bounds.right - 24) {
+          c.x = bounds.right - 24;
+          touchedWall = true;
+        }
+        if (c.y <= bounds.top + 24) {
+          c.y = bounds.top + 24;
+          touchedWall = true;
+        }
+        if (c.y >= bounds.bottom - 24) {
+          c.y = bounds.bottom - 24;
+          touchedWall = true;
+        }
+
+        if (touchedWall && survived - c.dash.lastSpikeRainAt >= CONFIG.dashSpikeRainCooldown) {
+          c.dash.lastSpikeRainAt = survived;
+          spawnDashSpikeRain();
+        }
+
         return;
       }
 
