@@ -259,6 +259,15 @@
       left: 4px;
     }
 
+    .bonus.blue {
+      background: linear-gradient(135deg, rgba(96, 165, 250, .98), rgba(37, 99, 235, .92));
+      box-shadow: 0 14px 30px rgba(37, 99, 235, .38);
+    }
+
+    .bonus.blue::after {
+      background: rgba(255, 255, 255, .7);
+    }
+
     .hand {
       position: absolute;
       width: 30px;
@@ -612,6 +621,136 @@
       transition: all .2s ease;
     }
 
+    .flame {
+      position: absolute;
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      transform: translate(-50%, -50%);
+      background: radial-gradient(circle, #fb7185, #f97316, transparent);
+      box-shadow: 0 0 18px rgba(249, 115, 22, 0.8);
+      pointer-events: none;
+      z-index: 3;
+      animation: flameFade 0.75s linear forwards;
+    }
+
+    .turret {
+      position: absolute;
+      width: 34px;
+      height: 34px;
+      transform: translate(-50%, -50%);
+      border-radius: 10px;
+      background: linear-gradient(135deg, rgba(180, 180, 210, 0.98), rgba(70, 70, 95, 0.98));
+      border: 2px solid rgba(255, 255, 255, 0.35);
+      box-shadow:
+        0 0 0 3px rgba(255, 80, 80, 0.15),
+        0 12px 28px rgba(0, 0, 0, 0.45),
+        0 0 18px rgba(255, 90, 90, 0.18);
+      z-index: 6;
+      pointer-events: none;
+    }
+
+    .turret::before {
+      content: "";
+      position: absolute;
+      inset: 6px;
+      border-radius: 8px;
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      background: rgba(255, 255, 255, 0.04);
+    }
+
+    .turret::after {
+      content: "";
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      width: 10px;
+      height: 10px;
+      transform: translate(-50%, -50%);
+      border-radius: 999px;
+      background: radial-gradient(circle, rgba(255, 255, 255, 0.95), rgba(255, 80, 80, 0.85));
+      box-shadow: 0 0 14px rgba(255, 40, 40, 0.65);
+    }
+
+    .turret-laser {
+      position: absolute;
+      height: 4px;
+      transform-origin: 0 50%;
+      animation: turretLaserPulse 0.35s infinite alternate;
+      background: linear-gradient(90deg,
+          rgba(255, 30, 30, 0.98),
+          rgba(255, 60, 60, 0.9) 35%,
+          rgba(255, 100, 100, 0.45) 70%,
+          rgba(255, 100, 100, 0.08));
+      box-shadow:
+        0 0 6px rgba(255, 0, 0, 0.65),
+        0 0 14px rgba(255, 0, 0, 0.35);
+      z-index: 5;
+      pointer-events: none;
+      border-radius: 999px;
+    }
+
+    @keyframes turretLaserPulse {
+      from {
+        opacity: 0.65;
+        filter: brightness(1);
+      }
+
+      to {
+        opacity: 1;
+        filter: brightness(1.35);
+      }
+    }
+
+    .turret-blast {
+      position: absolute;
+      width: 18px;
+      height: 18px;
+      transform: translate(-50%, -50%);
+      border-radius: 999px;
+      background: radial-gradient(circle, rgba(255, 255, 255, .95), rgba(255, 80, 80, .85), rgba(255, 0, 0, .25));
+      box-shadow: 0 0 18px rgba(255, 60, 60, .6);
+      z-index: 5;
+      pointer-events: none;
+    }
+
+    .shockwave {
+      position: absolute;
+      width: 24px;
+      height: 24px;
+      border-radius: 999px;
+      border: 3px solid rgba(96, 165, 250, 0.9);
+      box-shadow: 0 0 18px rgba(96, 165, 250, 0.45);
+      transform: translate(-50%, -50%) scale(0.4);
+      pointer-events: none;
+      z-index: 11;
+      animation: shockwaveAnim 500ms ease-out forwards;
+    }
+
+    @keyframes shockwaveAnim {
+      0% {
+        opacity: 0.95;
+        transform: translate(-50%, -50%) scale(0.4);
+      }
+
+      100% {
+        opacity: 0;
+        transform: translate(-50%, -50%) scale(7);
+      }
+    }
+
+    @keyframes flameFade {
+      0% {
+        opacity: 1;
+        transform: translate(-50%, -50%) scale(1);
+      }
+
+      100% {
+        opacity: 0;
+        transform: translate(-50%, -50%) scale(0.6);
+      }
+    }
+
     @media (max-width: 768px) {
 
       #startOverlay,
@@ -793,8 +932,8 @@
 
   <script>
     const CONFIG = {
-      speedStart: 3.2,
-      speedRampPerSec: 1.35,
+      speedStart: 2.9,
+      speedRampPerSec: 0.85,
 
       maxPauses: 3,
       giantChaserScale: 1.9,
@@ -813,14 +952,14 @@
 
       splitDuration: 7.0,
       splitSpawnPadding: 40,
-      splitStartSpeedFactor: 0.22,
+      splitStartSpeedFactor: 0.12,
 
       missilesDuration: 4.5,
       missileEvery: 0.34,
       missileSpeedBase: 260,
       missileSpeedPerSpeed: 10,
       missileHitRadius: 16,
-      missileLife: 2.7,
+      missileLife: 5,
 
       dashWarnDuration: 0.55,
       dashDuration: 0.42,
@@ -829,8 +968,8 @@
       dashSpikeRainSpread: 140,
       dashSpikeRainCooldown: 0.35,
 
-      bonusSpawnMin: 3.5,
-      bonusSpawnMax: 6.5,
+      bonusSpawnMin: 2.5,
+      bonusSpawnMax: 4.5,
       bonusMaxOnScreen: 4,
       bonusValue: 250,
       scorePerSecond: 120,
@@ -839,15 +978,32 @@
       bonusSafeRadiusFromChaser: 90,
       bonusSafeRadiusFromMouse: 60,
 
+      blueBonusEvery: 15,
+      blueBonusSlowAmount: 1.2,
+      blueBonusMinSpeed: 1.8,
+      blueBonusScoreValue: 400,
+
       handsDuration: 5.5,
       handsCount: 5,
       handsOrbitRadius: 72,
-      handsAngularSpeed: 2.7,
+      handsAngularSpeed: 8,
       handsHitRadius: 22,
 
       spikesStartAt: 20,
       spikesGrowPerSecond: 6,
       spikesMaxDepth: 140,
+
+      turretsStartAt: 10,
+      turretAimDuration: 3.0,
+      turretShotDuration: 1.1,
+      turretBeamWidth: 2,
+      turretBlastSpeed: 1100,
+      turretBlastSpeedScalePerSec: 0.015,
+      turretBlastSpeedMaxMult: 1.8,
+      turretBlastHitRadius: 18,
+      turretSpawnInset: 26,
+      turretBlinkDuration: 1.0,
+
 
       // lances du ciel
       spearsStartAt: 35,
@@ -883,6 +1039,7 @@
     const faceMain = document.getElementById("faceMain");
     const hud = document.getElementById("hud");
 
+    const flames = [];
     const spikesTopEl = document.getElementById("spikesTop");
     const spikesBottomEl = document.getElementById("spikesBottom");
     const spikesLeftEl = document.getElementById("spikesLeft");
@@ -988,6 +1145,13 @@
       playTone({ frequency: 320, frequencyEnd: 180, duration: 0.08, type: "square", volume: 0.025 });
     }
 
+    function playTurretChargeSound() {
+      playTone({ frequency: 260, frequencyEnd: 420, duration: 0.22, type: "sawtooth", volume: 0.035 });
+    }
+
+    function playTurretFireSound() {
+      playTone({ frequency: 900, frequencyEnd: 180, duration: 0.12, type: "square", volume: 0.05 });
+    }
     function playDashWarnSound() {
       playTone({ frequency: 420, frequencyEnd: 520, duration: 0.10, type: "square", volume: 0.03 });
     }
@@ -1006,6 +1170,13 @@
 
     function playSpearSound() {
       playTone({ frequency: 700, frequencyEnd: 240, duration: 0.10, type: "triangle", volume: 0.025 });
+    }
+
+    function playBlueBonusSound() {
+      playTone({ frequency: 260, frequencyEnd: 180, duration: 0.08, type: "square", volume: 0.04 });
+      setTimeout(() => {
+        playTone({ frequency: 520, frequencyEnd: 220, duration: 0.16, type: "sawtooth", volume: 0.05 });
+      }, 45);
     }
 
     function playStartSound() {
@@ -1099,12 +1270,15 @@
     const bonuses = [];
     const hands = [];
     const spears = [];
+    const turrets = [];
+    const turretBlasts = [];
 
     let nextSpearAt = CONFIG.spearsStartAt;
     let nextSideSpearAt = CONFIG.sideSpearsStartAt;
     let nextBottomSpearAt = CONFIG.bottomSpearsStartAt;
     let nextBonusAt = 0;
     let bonusCount = 0;
+    let nextBlueBonusAt = CONFIG.blueBonusEvery;
 
     let survived = 0;
     let best = Number(localStorage.getItem("best_survive") || "0");
@@ -1118,6 +1292,192 @@
       depth: 0
     };
 
+    function clearTurrets() {
+      for (const t of turrets) {
+        t.el.remove();
+        t.laserEl.remove();
+      }
+      turrets.length = 0;
+
+      for (const b of turretBlasts) {
+        b.el.remove();
+      }
+      turretBlasts.length = 0;
+    }
+
+    function spawnTurrets() {
+      clearTurrets();
+
+      const bounds = currentPlayableBounds();
+      const inset = CONFIG.turretSpawnInset;
+
+      const topCorners = [
+        { x: bounds.left + inset, y: bounds.top + inset },
+        { x: bounds.right - inset, y: bounds.top + inset }
+      ];
+
+      const bottomCorners = [
+        { x: bounds.left + inset, y: bounds.bottom - inset },
+        { x: bounds.right - inset, y: bounds.bottom - inset }
+      ];
+
+      const selectedCorners = Math.random() < 0.5 ? topCorners : bottomCorners;
+
+      for (const pos of selectedCorners) {
+        const el = document.createElement("div");
+        el.className = "turret";
+
+        const laserEl = document.createElement("div");
+        laserEl.className = "turret-laser";
+
+        arena.appendChild(el);
+        arena.appendChild(laserEl);
+
+        turrets.push({
+          x: pos.x,
+          y: pos.y,
+          el,
+          laserEl,
+          aimX: mouse.x,
+          aimY: mouse.y,
+          fired: false
+        });
+      }
+    }
+
+    function updateTurretLasers() {
+      for (const t of turrets) {
+        t.el.style.left = `${t.x}px`;
+        t.el.style.top = `${t.y}px`;
+
+        const dx = t.aimX - t.x;
+        const dy = t.aimY - t.y;
+        const len = Math.hypot(dx, dy);
+        const angle = Math.atan2(dy, dx) * 180 / Math.PI;
+
+        t.laserEl.style.left = `${t.x}px`;
+        t.laserEl.style.top = `${t.y}px`;
+        t.laserEl.style.height = `${CONFIG.turretBeamWidth}px`;
+        t.laserEl.style.width = `${len}px`;
+        t.laserEl.style.transform = `translateY(-50%) rotate(${angle}deg)`;
+      }
+    }
+
+    function fireTurrets() {
+      for (const t of turrets) {
+        if (t.fired) continue;
+        t.fired = true;
+
+        const dx = t.aimX - t.x;
+        const dy = t.aimY - t.y;
+        const d = Math.hypot(dx, dy) || 1;
+        const ux = dx / d;
+        const uy = dy / d;
+
+        const timeMult = Math.min(
+          1 + survived * CONFIG.turretBlastSpeedScalePerSec,
+          CONFIG.turretBlastSpeedMaxMult
+        );
+
+        const speed = CONFIG.turretBlastSpeed * timeMult;
+
+        const el = document.createElement("div");
+        el.className = "turret-blast";
+        arena.appendChild(el);
+
+        turretBlasts.push({
+          x: t.x,
+          y: t.y,
+          vx: ux * speed,
+          vy: uy * speed,
+          life: 1.5,
+          el
+        });
+      }
+    }
+    function spawnBonus(type = "green") {
+      if (bonuses.length >= CONFIG.bonusMaxOnScreen) return false;
+
+      const bounds = currentPlayableBounds();
+      const pad = CONFIG.bonusEdgePadding;
+
+      const minX = bounds.left + pad;
+      const maxX = bounds.right - pad;
+      const minY = bounds.top + pad;
+      const maxY = bounds.bottom - pad;
+
+      if (maxX <= minX || maxY <= minY) return false;
+
+      for (let attempt = 0; attempt < 18; attempt++) {
+        const x = minX + Math.random() * (maxX - minX);
+        const y = minY + Math.random() * (maxY - minY);
+
+        if (dist(x, y, mouse.x, mouse.y) < CONFIG.bonusSafeRadiusFromMouse) continue;
+
+        let ok = true;
+        for (const c of chasers) {
+          if (dist(x, y, c.x, c.y) < CONFIG.bonusSafeRadiusFromChaser) {
+            ok = false;
+            break;
+          }
+        }
+        if (!ok) continue;
+
+        const el = document.createElement("div");
+        el.className = type === "blue" ? "bonus blue" : "bonus";
+        arena.appendChild(el);
+
+        bonuses.push({ x, y, el, type });
+        return true;
+      }
+
+      return false;
+    }
+
+    function updateTurretBlasts(dt) {
+      const bounds = currentPlayableBounds();
+
+      for (let i = turretBlasts.length - 1; i >= 0; i--) {
+        const b = turretBlasts[i];
+        b.life -= dt;
+        b.x += b.vx * dt;
+        b.y += b.vy * dt;
+
+        b.el.style.left = `${b.x}px`;
+        b.el.style.top = `${b.y}px`;
+
+        if (dist(mouse.x, mouse.y, b.x, b.y) < CONFIG.turretBlastHitRadius) {
+          flashHit();
+          endGame();
+          return;
+        }
+
+        const out =
+          b.x < bounds.left - 80 ||
+          b.x > bounds.right + 80 ||
+          b.y < bounds.top - 80 ||
+          b.y > bounds.bottom + 80;
+
+        if (b.life <= 0 || out) {
+          b.el.remove();
+          turretBlasts.splice(i, 1);
+        }
+      }
+    }
+    function spawnFlame(x, y) {
+      const el = document.createElement("div");
+      el.className = "flame";
+      el.style.left = `${x}px`;
+      el.style.top = `${y}px`;
+      arena.appendChild(el);
+
+      flames.push({
+        x,
+        y,
+        life: 0.75,
+        el
+      });
+    }
     function makeChaser(el, isClone = false) {
       return {
         x: innerWidth * 0.35,
@@ -1125,6 +1485,7 @@
         vx: 0, vy: 0,
         el,
         isClone,
+        spawnSlowUntil: 0,
         dash: {
           phase: "none",
           warnUntil: 0,
@@ -1151,6 +1512,15 @@
       p.style.top = `${y}px`;
       arena.appendChild(p);
       p.addEventListener("animationend", () => p.remove());
+    }
+
+    function spawnShockwave(x, y) {
+      const el = document.createElement("div");
+      el.className = "shockwave";
+      el.style.left = `${x}px`;
+      el.style.top = `${y}px`;
+      arena.appendChild(el);
+      el.addEventListener("animationend", () => el.remove());
     }
 
     function flashHit() {
@@ -1271,12 +1641,16 @@
 
       scoreEl.textContent = String(Math.floor(score));
       bonusCountEl.textContent = String(bonusCount);
+      if (survived > 100) {
+        faceMain.textContent = "💀";
+      }
 
       abilityEl.textContent = activeAbility ? (
         activeAbility.type === "split" ? "Split (x2)" :
           activeAbility.type === "missiles" ? "Missiles" :
             activeAbility.type === "dash" ? "Dash" :
-              activeAbility.type === "hands" ? "Mains" : "—"
+              activeAbility.type === "hands" ? "Mains" :
+                activeAbility.type === "turrets" ? "Tourelles" : "—"
       ) : "—";
 
       pauseBtn.textContent = paused ? "Reprendre" : "Pause";
@@ -1392,6 +1766,7 @@
       score = 0;
       bonusCount = 0;
       chSpeed = CONFIG.speedStart;
+      nextBlueBonusAt = CONFIG.blueBonusEvery;
 
       pauseCount = 0;
       pauseLocked = false;
@@ -1403,6 +1778,8 @@
       clearBonuses();
       clearHands();
       clearSpears();
+      clearFlames();
+      clearTurrets();
       resetSpikes();
 
       nextSpearAt = CONFIG.spearsStartAt;
@@ -1493,58 +1870,51 @@
 
       setPaused(true);
     }
+
+
     function trySpawnBonus() {
-      if (bonuses.length >= CONFIG.bonusMaxOnScreen) return;
       if (survived < nextBonusAt) return;
 
-      const bounds = currentPlayableBounds();
-      const pad = CONFIG.bonusEdgePadding;
-
-      const minX = bounds.left + pad;
-      const maxX = bounds.right - pad;
-      const minY = bounds.top + pad;
-      const maxY = bounds.bottom - pad;
-
-      if (maxX <= minX || maxY <= minY) {
-        scheduleNextBonus();
-        return;
-      }
-
-      for (let attempt = 0; attempt < 18; attempt++) {
-        const x = minX + Math.random() * (maxX - minX);
-        const y = minY + Math.random() * (maxY - minY);
-
-        if (dist(x, y, mouse.x, mouse.y) < CONFIG.bonusSafeRadiusFromMouse) continue;
-
-        let ok = true;
-        for (const c of chasers) {
-          if (dist(x, y, c.x, c.y) < CONFIG.bonusSafeRadiusFromChaser) {
-            ok = false;
-            break;
-          }
-        }
-        if (!ok) continue;
-
-        const el = document.createElement("div");
-        el.className = "bonus";
-        arena.appendChild(el);
-        bonuses.push({ x, y, el });
-        break;
-      }
-
+      spawnBonus("green");
       scheduleNextBonus();
+    }
+
+    function clearAllProjectiles() {
+      clearMissiles();
+      clearSpears();
+      clearTurrets();
+
+      for (const h of hands) h.el.remove();
+      hands.length = 0;
     }
 
     function collectBonuses() {
       for (let i = bonuses.length - 1; i >= 0; i--) {
         const b = bonuses[i];
+
         if (dist(mouse.x, mouse.y, b.x, b.y) < CONFIG.bonusPickupRadius) {
           b.el.remove();
           bonuses.splice(i, 1);
-          bonusCount += 1;
-          score += CONFIG.bonusValue;
-          spawnPop(b.x, b.y);
-          playBonusSound();
+
+          if (b.type === "blue") {
+            chSpeed = Math.max(CONFIG.blueBonusMinSpeed, chSpeed - CONFIG.blueBonusSlowAmount);
+            score += CONFIG.blueBonusScoreValue;
+            clearAllProjectiles();
+            spawnPop(b.x, b.y);
+            spawnShockwave(b.x, b.y);
+            playBlueBonusSound();
+          } else {
+            bonusCount += 1;
+            score += CONFIG.bonusValue;
+            spawnPop(b.x, b.y);
+            playBonusSound();
+
+            if (bonusCount >= nextBlueBonusAt) {
+              if (spawnBonus("blue")) {
+                nextBlueBonusAt += CONFIG.blueBonusEvery;
+              }
+            }
+          }
         }
       }
     }
@@ -1734,6 +2104,7 @@
         arena.appendChild(cloneEl);
 
         cloneRef = makeChaser(cloneEl, true);
+        cloneRef.spawnSlowUntil = survived + 0.8;
 
         if (side === "left") {
           cloneRef.x = r.left + pad;
@@ -1763,6 +2134,22 @@
         activeAbility = { type, until: now + CONFIG.missilesDuration, missileT: 0 };
       }
 
+      if (type === "turrets") {
+        spawnTurrets();
+        playTurretChargeSound();
+
+        for (const t of turrets) {
+          t.aimX = mouse.x;
+          t.aimY = mouse.y;
+        }
+
+        activeAbility = {
+          type,
+          until: now + CONFIG.turretAimDuration,
+          fireAt: now + CONFIG.turretAimDuration,
+          fired: false
+        };
+      }
       if (type === "dash") {
         for (const c of chasers) {
           const tx = mouse.x + mouseVel.x * 0.06;
@@ -1809,12 +2196,16 @@
       if (activeAbility) return;
       if (survived < nextAbilityAt) return;
 
-      const r = Math.random();
-      const type =
-        r < 0.28 ? "split" :
-          r < 0.56 ? "missiles" :
-            r < 0.76 ? "dash" :
-              "hands";
+      let pool;
+
+      if (survived >= CONFIG.turretsStartAt) {
+        pool = ["split", "missiles", "dash", "hands", "turrets"];
+      } else {
+        pool = ["split", "missiles", "dash", "hands"];
+      }
+
+
+      const type = pool[Math.floor(Math.random() * pool.length)];
 
       startAbility(type);
     }
@@ -1822,6 +2213,36 @@
     function updateAbility(dt) {
       if (!activeAbility) return;
 
+      if (activeAbility.type === "turrets") {
+        const timeBeforeFire = activeAbility.fireAt - survived;
+
+        if (!activeAbility.fired) {
+          for (const t of turrets) {
+            t.aimX = mouse.x;
+            t.aimY = mouse.y;
+
+            if (timeBeforeFire <= CONFIG.turretBlinkDuration) {
+              const blinkOn = Math.floor((CONFIG.turretBlinkDuration - timeBeforeFire) * 10) % 2 === 0;
+              t.laserEl.style.opacity = blinkOn ? "1" : "0.15";
+            } else {
+              t.laserEl.style.opacity = "1";
+            }
+          }
+
+          updateTurretLasers();
+        }
+
+        if (!activeAbility.fired && survived >= activeAbility.fireAt) {
+          activeAbility.fired = true;
+
+          for (const t of turrets) {
+            t.laserEl.style.opacity = "0";
+          }
+
+          playTurretFireSound();
+          fireTurrets();
+        }
+      }
       if (activeAbility.type === "missiles") {
         activeAbility.missileT += dt;
         while (activeAbility.missileT >= CONFIG.missileEvery) {
@@ -1863,8 +2284,15 @@
         abilityEl.textContent = "—";
 
         if (ended === "split") removeClone();
-        if (ended === "missiles") clearMissiles();
         if (ended === "hands") clearHands();
+
+        if (ended === "turrets") {
+          for (const t of turrets) {
+            t.el.remove();
+            t.laserEl.remove();
+          }
+          turrets.length = 0;
+        }
 
         if (ended === "dash") {
           for (const c of chasers) {
@@ -1894,6 +2322,18 @@
 
     function updateChaser(c, dt) {
       const bounds = currentPlayableBounds();
+      let speedFactor = 1;
+
+      if (c.isClone && survived < c.spawnSlowUntil) {
+        speedFactor = 0.35;
+      }
+
+      if (survived >= 130 && !c.isClone) {
+        if (!c.lastFlame || survived - c.lastFlame > 0.05) {
+          spawnFlame(c.x, c.y);
+          c.lastFlame = survived;
+        }
+      }
 
       if (c.dash.phase === "dash") {
         const dashSpeed = chSpeed * CONFIG.speedScale * CONFIG.dashSpeedMult;
@@ -1902,24 +2342,10 @@
         c.x += c.vx * dt;
         c.y += c.vy * dt;
 
-        let touchedWall = false;
-
-        if (c.x <= bounds.left + 24) {
-          c.x = bounds.left + 24;
-          touchedWall = true;
-        }
-        if (c.x >= bounds.right - 24) {
-          c.x = bounds.right - 24;
-          touchedWall = true;
-        }
-        if (c.y <= bounds.top + 24) {
-          c.y = bounds.top + 24;
-          touchedWall = true;
-        }
-        if (c.y >= bounds.bottom - 24) {
-          c.y = bounds.bottom - 24;
-          touchedWall = true;
-        }
+        if (c.x <= bounds.left + 24) c.x = bounds.left + 24;
+        if (c.x >= bounds.right - 24) c.x = bounds.right - 24;
+        if (c.y <= bounds.top + 24) c.y = bounds.top + 24;
+        if (c.y >= bounds.bottom - 24) c.y = bounds.bottom - 24;
 
         return;
       }
@@ -1933,8 +2359,8 @@
       const ux = dx / d;
       const uy = dy / d;
 
-      const desiredVx = ux * (chSpeed * CONFIG.speedScale);
-      const desiredVy = uy * (chSpeed * CONFIG.speedScale);
+      const desiredVx = ux * (chSpeed * CONFIG.speedScale * speedFactor);
+      const desiredVy = uy * (chSpeed * CONFIG.speedScale * speedFactor);
 
       const steerLimit = CONFIG.steerBase + CONFIG.steerPerSpeed * chSpeed;
       let steerX = desiredVx - c.vx;
@@ -1958,6 +2384,24 @@
       c.y = clamp(c.y, bounds.top + 24, bounds.bottom - 24);
     }
 
+
+    function updateFlames(dt) {
+      for (let i = flames.length - 1; i >= 0; i--) {
+        const f = flames[i];
+        f.life -= dt;
+
+        if (dist(mouse.x, mouse.y, f.x, f.y) < 14) {
+          flashHit();
+          endGame();
+          return;
+        }
+
+        if (f.life <= 0) {
+          f.el.remove();
+          flames.splice(i, 1);
+        }
+      }
+    }
     function updateMissiles(dt) {
       const r = arena.getBoundingClientRect();
       for (let i = missiles.length - 1; i >= 0; i--) {
@@ -2134,8 +2578,12 @@
     function queueNextTick() {
       requestAnimationFrame(tick);
     }
-
+    function clearFlames() {
+      for (const f of flames) f.el.remove();
+      flames.length = 0;
+    }
     function tick(ts) {
+
       const dt = Math.min(0.033, (ts - lastTs) / 1000);
       lastTs = ts;
 
@@ -2158,8 +2606,10 @@
 
         for (const c of chasers) updateChaser(c, dt);
         updateMissiles(dt);
+        updateTurretBlasts(dt);
         updateHands();
         updateSpears(dt);
+        updateFlames(dt);
 
         if (gameOver) {
           setPositions();
